@@ -101,7 +101,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="UsefulThings">
-      <HintPath>..\..\..\..\..\..\..\My Documents\Code Repository\C#\UsefulThings\UsefulThings\bin\Debug\UsefulThings.dll</HintPath>
+      <HintPath>..\..\..\Useful-C-Sharp-Collection\UsefulThings\bin\Debug\UsefulThings.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />

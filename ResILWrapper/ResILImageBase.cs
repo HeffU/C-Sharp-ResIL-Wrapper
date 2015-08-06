@@ -46,7 +46,11 @@ namespace ResILWrapper
             return (int)Math.Log(determiningDimension, 2) + 1;
         }
 
-
+        //Heff: Helper to get error info
+        public static ErrorType GetLastError()
+        {
+            return IL2.GetError();
+        }
 
         static ResILImageBase()
         {

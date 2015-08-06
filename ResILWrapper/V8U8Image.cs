@@ -419,8 +419,54 @@ namespace ResILWrapper
 
         public override bool ConvertAndSave(ImageType type, string savePath, ResILImageBase.MipMapMode MipsMode = MipMapMode.BuildAll, CompressedDataFormat surface = CompressedDataFormat.None, int quality = 80, bool SetJPGQuality = true)
         {
-            using (FileStream fs = new FileStream(savePath, FileMode.CreateNew))
-                return ConvertAndSave(type, fs, MipsMode, surface, quality, SetJPGQuality);
+            // KFreon: If converting to something other than V8U8...
+            if (surface != SurfaceFormat)
+            {
+                byte[] RawImageData = GetImageDataAs3Channel(); // KFreon: Get image data as raw rgb pixels
+                int stride = (Width * 32 + 7) / 8;
+                BitmapSource test = BitmapSource.Create(Width, Height, 96, 96, PixelFormats.Bgr32, BitmapPalettes.Halftone125, RawImageData, stride);
+
+                MemoryTributary stream2 = new MemoryTributary();
+                JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(test));
+                encoder.Save(stream2);
+
+                using (ResILImage img = new ResILImage(stream2))
+                    return img.ConvertAndSave(type, savePath, MipsMode, surface, quality, SetJPGQuality);
+            }
+            else
+            {
+                // KFreon: Deal with mips first
+                int expectedMips = EstimateNumMips(Width, Height);
+                bool success = true;
+                switch (MipsMode)
+                {
+                    case MipMapMode.BuildAll:
+                        if (expectedMips != Mips)
+                            success = BuildMipMaps();
+                        break;
+                    case MipMapMode.Rebuild:
+                        // KFreon: Remove existing mips before building them again
+                        if (!RemoveMipMaps())
+                            success = false;
+                        else
+                            success = BuildMipMaps();
+                        break;
+                    case MipMapMode.ForceRemove:
+                    case MipMapMode.RemoveAllButOne:
+                        success = RemoveMipMaps();
+                        break;
+                }
+
+                if (!success)
+                {
+                    Debug.WriteLine("Failed to fix mipmaps.");
+                    return false;
+                }
+
+                // KFreon: Build formatting and write out to file
+                return WriteV8U8(MipMaps, savePath, Height, Width, Mips);
+            }
         }
 
         public override bool ConvertAndSave(ImageType type, Stream stream, ResILImageBase.MipMapMode MipsMode = MipMapMode.BuildAll, CompressedDataFormat surface = CompressedDataFormat.None, int quality = 80, bool SetJPGQuality = true)

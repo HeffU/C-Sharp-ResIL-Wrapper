@@ -409,35 +409,56 @@ namespace ResILWrapper
         /// <returns>True if success.</returns>
         public override bool ConvertAndSave(ImageType type, string savePath, MipMapMode MipsMode = MipMapMode.None, CompressedDataFormat surface = CompressedDataFormat.None, int quality = 80, bool SetJPGQuality = true)
         {
-            /*if (SetJPGQuality && type == ImageType.Jpg)
+            if (SetJPGQuality && type == ImageType.Jpg)
                 ResIL.Settings.SetJPGQuality(quality);
 
-            bool mipsOperationSuccess = true;
-            switch (MipsMode)
+            if (surface == CompressedDataFormat.V8U8)
             {
-                case MipMapMode.BuildAll:
-                    mipsOperationSuccess = BuildMipMaps();
-                    break;
-                case MipMapMode.Rebuild:
-                    mipsOperationSuccess = BuildMipMaps(true);
-                    break;
-                case MipMapMode.RemoveAllButOne:
-                    mipsOperationSuccess = RemoveMipMaps();
-                    break;
-                case MipMapMode.ForceRemove:
-                    mipsOperationSuccess = RemoveMipMaps(true);
-                    break;
+                byte[] imgdata = ToArray();
+
+                if (imgdata == null)
+                    return false;
+
+                byte[] rawdata = null;
+                using (MemoryTributary test = new MemoryTributary(imgdata))
+                {
+                    var frame = BitmapFrame.Create(test);
+                    int stride = (Width * 32 + 7) / 8;
+                    rawdata = new byte[stride * 1024];
+                    frame.CopyPixels(rawdata, stride, 0);
+                }
+
+                using (V8U8Image img = new V8U8Image(rawdata, Width, Height, BitsPerPixel))
+                {
+                    return img.ConvertAndSave(type, savePath, MipsMode, surface, quality, SetJPGQuality);
+                }
             }
+            else
+            {
+                bool mipsOperationSuccess = true;
+                switch (MipsMode)
+                {
+                    case MipMapMode.BuildAll:
+                        mipsOperationSuccess = BuildMipMaps();
+                        break;
+                    case MipMapMode.Rebuild:
+                        mipsOperationSuccess = BuildMipMaps(true);
+                        break;
+                    case MipMapMode.RemoveAllButOne:
+                        mipsOperationSuccess = RemoveMipMaps();
+                        break;
+                    case MipMapMode.ForceRemove:
+                        mipsOperationSuccess = RemoveMipMaps(true);
+                        break;
+                }
 
-            if (!mipsOperationSuccess)
-                Console.WriteLine("Failed to build mips for {0}", savePath);
+                if (!mipsOperationSuccess)
+                    Console.WriteLine("Failed to build mips for image.");
 
-            ChangeSurface(surface);
-            //IL2.SaveImage(handle, savePath + ".dds", type);
-            return IL2.SaveImage(handle, savePath, type);*/
 
-            using (FileStream fs = new FileStream(savePath, FileMode.CreateNew))
-                return ConvertAndSave(type, fs, MipsMode, surface, quality, SetJPGQuality);
+                ChangeSurface(surface);
+                return IL2.SaveImage(handle, savePath, type);
+            }
         }
 
 
