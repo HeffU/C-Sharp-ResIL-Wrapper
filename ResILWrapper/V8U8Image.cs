@@ -41,15 +41,6 @@ namespace ResILWrapper
         }
 	
 	    public string Path { get; private set; }
-        public int Width { get; private set; }
-        public int Height { get; private set; }
-	    public int Mips
-	    {
-		    get
-		    {
-			    return MipMaps == null ? -1 : MipMaps.Length;
-		    }
-	    }
 	    MipMap[] MipMaps;
 	
         private V8U8Image()
@@ -90,7 +81,8 @@ namespace ResILWrapper
 
             Width = width;
             Height = height;
-            MipMaps = new MipMap[1];
+            MipMaps = new MipMap[1]; // Heff: support more mipmaps for raw data?
+            Mips = 1;
             MipMap mip = null;
 
             if (numSourceChannels == 2)
@@ -153,7 +145,8 @@ namespace ResILWrapper
                 int mipMapBytes = (int)(w * h * bytePerPixel);
                 MipMaps[i] = new MipMap(r.ReadBytes(mipMapBytes), w, h);
             }
-        
+
+            Mips = mipMapCount;
             Width = header.dwWidth;
             Height = header.dwHeight;
 	    }
@@ -258,6 +251,7 @@ namespace ResILWrapper
                 }
 
                 MipMaps = newMips.ToArray();
+                Mips = MipMaps.Length;
                 success = true;
             }
             catch (Exception e)
@@ -414,6 +408,7 @@ namespace ResILWrapper
                 return false;
             
             MipMaps = new MipMap[] { MipMaps[0] };
+            Mips = 1;
             return true;
         }
 
