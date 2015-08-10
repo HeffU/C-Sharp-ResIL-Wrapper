@@ -497,7 +497,10 @@ namespace ResIL.Unmanaged
         /// does seem to use red rather than green when looking in the files,
         /// but bioware has called it G8/L8 anyway, unsure of why.
         /// </summary>
-        G8 = ILDefines.IL_DXTC_DATA_FORMAT
+        G8 = ILDefines.IL_DXTC_DATA_FORMAT,
+
+        // Heff: this should be the default for any DXTC-based format that ResIL doesn't recognize?
+        UNKNOWN_DDS = ILDefines.IL_DXTC_FORMAT
     }
 
     /// <summary>
