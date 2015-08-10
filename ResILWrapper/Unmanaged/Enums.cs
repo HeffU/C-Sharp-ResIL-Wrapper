@@ -489,7 +489,15 @@ namespace ResIL.Unmanaged
         /// </summary>
         DXT1A = ILDefines.IL_DXT1A,
 
-        V8U8 = ILDefines.V8U8  // KFreon: ADDED
+        V8U8 = ILDefines.V8U8,  // KFreon: ADDED
+
+        // Heff: Added this to handle 1805 format ID.
+        /// <summary>
+        /// G8/L8, luminance format based on ARGB.
+        /// does seem to use red rather than green when looking in the files,
+        /// but bioware has called it G8/L8 anyway, unsure of why.
+        /// </summary>
+        G8 = ILDefines.IL_DXTC_DATA_FORMAT
     }
 
     /// <summary>
